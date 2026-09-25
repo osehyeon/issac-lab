@@ -1,0 +1,132 @@
+--- a/scripts/environments/state_machine/lift_cube_sm.py
++++ b/scripts/environments/state_machine/lift_cube_sm.py
+@@ -44,7 +44,10 @@
+ import torch
+ import warp as wp
+ 
++import isaaclab.sim as sim_utils
++from isaaclab.assets import RigidObjectCfg
+ from isaaclab.assets.rigid_object.rigid_object_data import RigidObjectData
++from isaaclab.utils.assets import ISAACLAB_NUCLEUS_DIR
+ 
+ import isaaclab_tasks  # noqa: F401
+ from isaaclab_tasks.contrib.lift.lift_env_cfg import LiftEnvCfg
+@@ -69,6 +72,9 @@
+     APPROACH_OBJECT = wp.constant(2)
+     GRASP_OBJECT = wp.constant(3)
+     LIFT_OBJECT = wp.constant(4)
++    MOVE_ABOVE_BASKET = wp.constant(5)
++    LOWER_INTO_BASKET = wp.constant(6)
++    RELEASE_OBJECT = wp.constant(7)
+ 
+ 
+ class PickSmWaitTime:
+@@ -79,6 +85,7 @@
+     APPROACH_OBJECT = wp.constant(0.6)
+     GRASP_OBJECT = wp.constant(0.3)
+     LIFT_OBJECT = wp.constant(1.0)
++    RELEASE_OBJECT = wp.constant(0.5)
+ 
+ 
+ @wp.func
+@@ -94,6 +101,7 @@
+     ee_pose: wp.array(dtype=wp.transform),
+     object_pose: wp.array(dtype=wp.transform),
+     des_object_pose: wp.array(dtype=wp.transform),
++    basket_pose: wp.array(dtype=wp.transform),
+     des_ee_pose: wp.array(dtype=wp.transform),
+     gripper_state: wp.array(dtype=float),
+     offset: wp.array(dtype=wp.transform),
+@@ -156,8 +164,31 @@
+             # wait for a while
+             if sm_wait_time[tid] >= PickSmWaitTime.LIFT_OBJECT:
+                 # move to next state and reset wait time
+-                sm_state[tid] = PickSmState.LIFT_OBJECT
++                sm_state[tid] = PickSmState.MOVE_ABOVE_BASKET
+                 sm_wait_time[tid] = 0.0
++    elif state == PickSmState.MOVE_ABOVE_BASKET:
++        des_ee_pose[tid] = wp.transform_multiply(offset[tid], basket_pose[tid])
++        gripper_state[tid] = GripperState.CLOSE
++        if distance_below_threshold(
++            wp.transform_get_translation(ee_pose[tid]),
++            wp.transform_get_translation(des_ee_pose[tid]),
++            position_threshold,
++        ):
++            sm_state[tid] = PickSmState.LOWER_INTO_BASKET
++            sm_wait_time[tid] = 0.0
++    elif state == PickSmState.LOWER_INTO_BASKET:
++        des_ee_pose[tid] = basket_pose[tid]
++        gripper_state[tid] = GripperState.CLOSE
++        if distance_below_threshold(
++            wp.transform_get_translation(ee_pose[tid]),
++            wp.transform_get_translation(des_ee_pose[tid]),
++            position_threshold,
++        ):
++            sm_state[tid] = PickSmState.RELEASE_OBJECT
++            sm_wait_time[tid] = 0.0
++    elif state == PickSmState.RELEASE_OBJECT:
++        des_ee_pose[tid] = basket_pose[tid]
++        gripper_state[tid] = GripperState.OPEN
+     # increment wait time
+     sm_wait_time[tid] = sm_wait_time[tid] + dt[tid]
+ 
+@@ -219,13 +250,16 @@
+         self.sm_state[env_ids] = 0
+         self.sm_wait_time[env_ids] = 0.0
+ 
+-    def compute(self, ee_pose: torch.Tensor, object_pose: torch.Tensor, des_object_pose: torch.Tensor) -> torch.Tensor:
++    def compute(
++        self, ee_pose: torch.Tensor, object_pose: torch.Tensor, des_object_pose: torch.Tensor, basket_pose: torch.Tensor
++    ) -> torch.Tensor:
+         """Compute the desired state of the robot's end-effector and the gripper."""
+ 
+         # convert to warp
+         ee_pose_wp = wp.from_torch(ee_pose.contiguous(), wp.transform)
+         object_pose_wp = wp.from_torch(object_pose.contiguous(), wp.transform)
+         des_object_pose_wp = wp.from_torch(des_object_pose.contiguous(), wp.transform)
++        basket_pose_wp = wp.from_torch(basket_pose.contiguous(), wp.transform)
+ 
+         # run state machine
+         wp.launch(
+@@ -238,6 +272,7 @@
+                 ee_pose_wp,
+                 object_pose_wp,
+                 des_object_pose_wp,
++                basket_pose_wp,
+                 self.des_ee_pose_wp,
+                 self.des_gripper_state_wp,
+                 self.offset_wp,
+@@ -259,6 +294,17 @@
+         use_fabric=not args_cli.disable_fabric,
+         overrides=hydra_overrides,
+     )
++    env_cfg.scene.basket = RigidObjectCfg(
++        prim_path="{ENV_REGEX_NS}/Basket",
++        init_state=RigidObjectCfg.InitialStateCfg(pos=(0.45, -0.35, 0.0203)),
++        spawn=sim_utils.UsdFileCfg(
++            usd_path=f"{ISAACLAB_NUCLEUS_DIR}/Mimic/nut_pour_task/nut_pour_assets/sorting_bin_blue.usd",
++            scale=(1.1, 1.6, 3.3),
++            rigid_props=sim_utils.UsdPhysicsRigidBodyCfg(kinematic_enabled=True),
++        ),
++    )
++    env_cfg.events.reset_object_position.params["pose_range"]["y"] = (0.0, 0.2)
++    env_cfg.episode_length_s = 12.0
+     # create environment
+     env = gym.make("IsaacContrib-Lift-Cube-Franka-IK-Abs", cfg=env_cfg)
+     # reset environment at start
+@@ -293,12 +339,15 @@
+             object_position = object_data.root_pos_w.torch - env.unwrapped.scene.env_origins
+             # -- target object frame
+             desired_position = env.unwrapped.command_manager.get_command("object_pose")[..., :3]
++            basket_position = env.unwrapped.scene["basket"].data.root_pos_w.torch - env.unwrapped.scene.env_origins
++            basket_position[:, 2] += 0.15
+ 
+             # advance state machine
+             actions = pick_sm.compute(
+                 torch.cat([tcp_rest_position, tcp_rest_orientation], dim=-1),
+                 torch.cat([object_position, desired_orientation], dim=-1),
+                 torch.cat([desired_position, desired_orientation], dim=-1),
++                torch.cat([basket_position, desired_orientation], dim=-1),
+             )
+ 
+             # reset state machine

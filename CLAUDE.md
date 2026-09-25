@@ -27,9 +27,18 @@ Machine-specific details live in `CLAUDE.local.md`.
 - X11 forwarding (`ssh -Y`, XQuartz) works for simple apps. Do not use it for Kit.
   Start XQuartz first, or windows close immediately.
 - Kit GUI: WebRTC livestream to the macOS Streaming Client at the server's Tailscale IP.
-  TCP 49100 and UDP 47998 pass over Tailscale in both directions. Kit streaming itself is untested.
-  SSH tunnels cannot carry it (media is UDP).
+  Works (Streaming Client 2.0.0 on macOS aarch64, signal 49100, stream 47998, 1920x1080):
+  `LIVESTREAM=1 PUBLIC_IP=<tailscale-ip> uv run --extra isaacsim isaaclab zero_agent --task IsaacContrib-Lift-Cube-Franka --num_envs 4 --viz kit`
+  One client at a time. SSH tunnels cannot carry it (media is UDP).
 - Report images: `--video` records mp4 headlessly (needs the `video` extra).
+
+## Verified on the server (RTX 5090, driver 595.84)
+
+- `uv sync`: ~7 min, `.venv` 8.1 GB; Python 3.12.14, torch 2.12.0+cu130 sees the GPU as sm_120.
+- `uv sync --extra isaacsim`: ~17 min, `.venv` 27 GB, `isaacsim` 6.1.0.0.
+- Kit-less Cartpole (`physics=newton_mjwarp`) and Kit Cartpole (`physics=isaacsim_physx`) both train headless.
+- `--video` renders through RTX without crashing (needs `--extra video`). The first frame is black.
+  `--video_interval 1` makes one-frame clips; keep the default or use a large interval.
 
 ## Known risks
 

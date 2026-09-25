@@ -1,0 +1,31 @@
+--- a/scripts/tutorials/00_sim/spawn_prims.py
++++ b/scripts/tutorials/00_sim/spawn_prims.py
+@@ -16,11 +16,13 @@
+ 
+ 
+ import argparse
++import time
+ 
+ from isaaclab.app import AppLauncher
+ 
+ # create argparser
+ parser = argparse.ArgumentParser(description="Tutorial on spawning prims into the scene.")
++parser.add_argument("--start_delay", type=float, default=30.0, help="Seconds to render before physics starts.")
+ # append AppLauncher cli args
+ AppLauncher.add_app_launcher_args(parser)
+ # parse the arguments
+@@ -105,9 +107,12 @@
+     print("[INFO]: Setup complete...")
+ 
+     # Simulate physics
++    t0 = time.time()
+     while simulation_app.is_running():
+-        # perform step
+-        sim.step()
++        if time.time() - t0 < args_cli.start_delay:
++            sim.render()
++        else:
++            sim.step()
+ 
+ 
+ if __name__ == "__main__":

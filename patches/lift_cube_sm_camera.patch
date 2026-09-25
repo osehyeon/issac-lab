@@ -1,0 +1,18 @@
+--- a/scripts/environments/state_machine/lift_cube_sm.py
++++ b/scripts/environments/state_machine/lift_cube_sm.py
+@@ -45,6 +45,7 @@
+ import warp as wp
+ 
+ from isaaclab.assets.rigid_object.rigid_object_data import RigidObjectData
++from isaaclab.visualizers import VisualizerCfg
+ 
+ import isaaclab_tasks  # noqa: F401
+ from isaaclab_tasks.contrib.lift.lift_env_cfg import LiftEnvCfg
+@@ -259,6 +260,7 @@
+         use_fabric=not args_cli.disable_fabric,
+         overrides=hydra_overrides,
+     )
++    env_cfg.sim.default_visualizer_cfg = VisualizerCfg(eye=(1.6, 0.6, 0.8), lookat=(0.4, 0.0, 0.2))
+     # create environment
+     env = gym.make("IsaacContrib-Lift-Cube-Franka-IK-Abs", cfg=env_cfg)
+     # reset environment at start

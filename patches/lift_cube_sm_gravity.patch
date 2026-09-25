@@ -1,0 +1,10 @@
+--- a/scripts/environments/state_machine/lift_cube_sm.py
++++ b/scripts/environments/state_machine/lift_cube_sm.py
+@@ -259,6 +259,7 @@
+         use_fabric=not args_cli.disable_fabric,
+         overrides=hydra_overrides,
+     )
++    env_cfg.sim.gravity = (0.0, 0.0, 9.81)
+     # create environment
+     env = gym.make("IsaacContrib-Lift-Cube-Franka-IK-Abs", cfg=env_cfg)
+     # reset environment at start

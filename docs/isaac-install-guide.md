@@ -352,10 +352,10 @@ sudo apt install cmake build-essential     # sudo가 없어서 이 머신에서�
 
 ## 8. 아직 모르는 것 / 확인 필요
 
-- [ ] 드라이버 **595.84 + Isaac Sim 6.1.0 + RTX 5090** 조합에서 Kit GUI와 livestream이 crash 없이 뜨는지. 공식 테스트 버전은 595.58.03이다 [12]
+- [x] 드라이버 **595.84 + Isaac Sim 6.1.0 + RTX 5090**: headless 학습, `--video` RTX 녹화, livestream 모두 crash 없이 동작한다 (2026-09-25 확인)
 - [ ] kernel **7.0**에서 검증된 사례 (문서에 커널 요구사항 없음)
-- [ ] `uv run --extra isaacsim` 첫 설치에 필요한 디스크와 시간 (문서에 수치 없음)
-- [ ] Tailscale로 Kit livestream이 실제로 붙는지. `LIVESTREAM=1 PUBLIC_IP=<SERVER_IP>`와 `LIVESTREAM=2` 중 어느 쪽이 되는지. (TCP 49100, UDP 47998이 Tailscale로 양방향 통과하는 것은 2026-09-25에 소켓 테스트로 확인했다)
+- [x] 첫 설치: `uv sync` 약 7분 (8.1 GB), `--extra isaacsim` 추가 약 17분 (`.venv` 총 27 GB) (2026-09-25 확인)
+- [x] Tailscale로 Kit livestream이 붙는다 (2026-09-25 확인). `LIVESTREAM=1 PUBLIC_IP=<SERVER_IP>`, Mac Streaming Client 2.0.0, signal 49100 / stream 47998, 1920x1080
 - [ ] `isaaclab train/play/zero_agent`에서 `--livestream` CLI 인자가 실제로 받아지는지 (소스상 AppLauncher 인자로 등록됨 [20]). 안 되면 `LIVESTREAM` 환경변수를 쓴다
 - [ ] `IsaacContrib-Lift-Cube-Franka`가 `zero_agent`/`train`에서 문제없이 도는지와 기본 RL 설정 (rsl_rl cfg 존재 확인 [34])
 - [ ] Hydra로 `env.sim.default_visualizer_cfg.eye`나 `env.scene.robot.init_state.joint_pos.<joint>`를 override할 수 있는지 (문서의 일반 규칙에서 추론)
