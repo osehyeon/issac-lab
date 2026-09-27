@@ -1,0 +1,4 @@
+[submodule "leisaac"]
+	path = leisaac
+	url = https://github.com/osehyeon/leisaac.git
+	branch = isaaclab-3.0
