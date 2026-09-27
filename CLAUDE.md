@@ -40,6 +40,28 @@ Machine-specific details live in `CLAUDE.local.md`.
 - `--video` renders through RTX without crashing (needs `--extra video`). The first frame is black.
   `--video_interval 1` makes one-frame clips; keep the default or use a large interval.
 
+- Isaac Sim 5.1 (pip, via LeIsaac 0.4.0) was re-checked on 2026-09-26: `isaacsim isaacsim.exp.full --no-window`
+  reaches `app ready`, then segfaults (exit 139). No Linux workaround short of a 580 driver is known.
+
+## Repo layout
+
+- `patches/`: minimal diffs against upstream Isaac Lab scripts; `scripts/apply_patches.sh` writes patched copies.
+- `scripts/capture.sh`, `scripts/burst.sh`: Streaming Client screenshots; `captures/README.md` logs each one with its command.
+- `leisaac/`: submodule, `osehyeon/leisaac` branch `isaaclab-3.0`, a port of LightwheelAI/leisaac (Isaac Lab 2.3)
+  to Isaac Lab 3.0. Upstream has no plans for Isaac Sim 6 (LightwheelAI/leisaac#167). Commit and push inside the
+  submodule first, then commit the new pointer here. Keep changes minimal; commit messages follow the global rules.
+
+## LeIsaac on Isaac Lab 3.0
+
+- Install into the Isaac Lab venv at run time: `uv run --extra isaacsim --with-editable source/isaaclab_teleop --with-editable <leisaac>/source/leisaac ...`.
+  LeIsaac registers its tasks through the `isaaclab.tasks` entry point. Assets come from LeIsaac releases
+  (`so101_follower.usd` v0.1.0, `table_with_cube.zip` v0.1.2) into `$LEISAAC_ASSETS_ROOT`, not committed.
+- `LeIsaac-SO101-LiftCube-v0` steps with its front RGB camera. `scripts/evaluation/policy_inference.py --policy_type random`
+  runs full episodes. Nothing may load `pxr` before Kit starts, and the script forces `enable_cameras`.
+- The LeRobot policy server runs in its own venv (lerobot v0.3.3 layout). Do not install `leisaac[lerobot-async]`
+  into the Isaac Lab venv: its grpc/protobuf pins would downgrade Isaac Lab's.
+- Not ported yet: teleop devices, cloth, mimic, other tasks.
+
 ## Known risks
 
 - isaac-sim/IsaacSim#729: `update()` can stall 20-270 s on Blackwell (seen on 6.0.1).
