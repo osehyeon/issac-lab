@@ -73,7 +73,9 @@ Machine-specific details live in `CLAUDE.local.md`.
   has no sm_120 kernels); `scripts/inference_service.py --server --embodiment-tag new_embodiment --data-config so100_dualcam --denoising-steps 4`.
   Client adds `--with pyzmq --with msgpack` at run time. ~46 ms median per call (16-step chunks).
 - The server binds 0.0.0.0:5555 even with `--host 127.0.0.1`; stop it when done.
-- Isaac Sim 6.1 cannot cook four wall fixtures in the kitchen scene; they are deactivated at spawn, otherwise
+- Some scene USDs hide objects with scale (0, 0, 0) but keep a dynamic rigid body with SDF collision (e.g. four
+  wall fixtures in kitchen_with_orange). Isaac Sim 6.1 cannot cook them; `assets/scenes/common.py` deactivates
+  every zero-scale rigid body at spawn, otherwise
   every RTX camera image is garbage after the first physics step.
 - Not ported yet: teleop devices, cloth, mimic, other tasks.
 
