@@ -58,8 +58,15 @@ Machine-specific details live in `CLAUDE.local.md`.
   (`so101_follower.usd` v0.1.0, `table_with_cube.zip` v0.1.2) into `$LEISAAC_ASSETS_ROOT`, not committed.
 - `LeIsaac-SO101-LiftCube-v0` steps with its front RGB camera. `scripts/evaluation/policy_inference.py --policy_type random`
   runs full episodes. Nothing may load `pxr` before Kit starts, and the script forces `enable_cameras`.
-- The LeRobot policy server runs in its own venv (lerobot v0.3.3 layout). Do not install `leisaac[lerobot-async]`
-  into the Isaac Lab venv: its grpc/protobuf pins would downgrade Isaac Lab's.
+- The LeRobot policy server runs in its own venv: Python 3.10, `lerobot[smolvla,async]==0.3.3`, torch 2.7.1+cu128.
+  Do not install `leisaac[lerobot-async]` into the Isaac Lab venv: its grpc/protobuf pins would downgrade Isaac Lab's.
+  The Isaac Lab venv's grpcio 1.83 / protobuf 7.36rc1 talk to the 0.3.3 server fine.
+- `--policy_type lerobot-smolvla` works end to end (verified 2026-09-27): 50-step chunks of 6 joints,
+  ~100 ms per GetActions on the RTX 5090. The client sends `must_go=True`; without it the server's
+  similarity filter can stall a synchronous client forever.
+- Checkpoints must be in the lerobot 0.3.x layout (`config.json` + `model.safetensors` with unprefixed
+  normalization buffers) and expect `observation.images.front` + 6-dim `observation.state`. Stock
+  `lerobot/smolvla_base` needs its features and stats rewritten first.
 - Not ported yet: teleop devices, cloth, mimic, other tasks.
 
 ## Known risks
