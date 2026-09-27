@@ -67,6 +67,14 @@ Machine-specific details live in `CLAUDE.local.md`.
 - Checkpoints must be in the lerobot 0.3.x layout (`config.json` + `model.safetensors` with unprefixed
   normalization buffers) and expect `observation.images.front` + 6-dim `observation.state`. Stock
   `lerobot/smolvla_base` needs its features and stats rewritten first.
+- Official GR00T N1.5 PickOrange works (2026-09-28): unmodified `LightwheelAI/leisaac-pick-orange-v0` weights,
+  `LeIsaac-SO101-PickOrange-v0`, 5/10 successful 60 s episodes. Server: Isaac-GR00T @ 4af2b62 in its own
+  Python 3.10 venv with torch 2.7.1+cu128 and the flash-attn 2.8.3 cu12/torch2.7 wheel (the pinned torch 2.5.1
+  has no sm_120 kernels); `scripts/inference_service.py --server --embodiment-tag new_embodiment --data-config so100_dualcam --denoising-steps 4`.
+  Client adds `--with pyzmq --with msgpack` at run time. ~46 ms median per call (16-step chunks).
+- The server binds 0.0.0.0:5555 even with `--host 127.0.0.1`; stop it when done.
+- Isaac Sim 6.1 cannot cook four wall fixtures in the kitchen scene; they are deactivated at spawn, otherwise
+  every RTX camera image is garbage after the first physics step.
 - Not ported yet: teleop devices, cloth, mimic, other tasks.
 
 ## Known risks
