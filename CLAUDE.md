@@ -47,6 +47,7 @@ Machine-specific details live in `CLAUDE.local.md`.
 
 - `patches/`: minimal diffs against upstream Isaac Lab scripts; `scripts/apply_patches.sh` writes patched copies.
 - `scripts/capture.sh`, `scripts/burst.sh`: Streaming Client screenshots; `captures/README.md` logs each one with its command.
+- GR00T evaluation helpers in `scripts/`: `traj_logger.py` (60 Hz joint trajectories + saved observations), `motion_metrics.py` (SPARC, LDLJ, ATV, chunk-boundary jumps), `replay_obs.py` (matched-observation replay), `gr00t_serve_seeded.py` / `gr00t_serve_fakequant.py` (fixed noise seed; ModelOpt fake quantization), `gr00t_export_pyav.py` + `build_trt_engines.py` (official ONNX export with PyAV decoding, TensorRT engines via the Python API), `summarize_conditions.py`. Figures and their generators live in `docs/gr00t-*.{py,html}`; `scripts/report_pdf.sh` renders a markdown report to PDF in Typora's GitHub theme.
 - `leisaac/`: submodule, `osehyeon/leisaac` branch `isaaclab-3.0`, a port of LightwheelAI/leisaac (Isaac Lab 2.3)
   to Isaac Lab 3.0. Upstream has no plans for Isaac Sim 6 (LightwheelAI/leisaac#167). Commit and push inside the
   submodule first, then commit the new pointer here. Keep changes minimal; commit messages follow the global rules.

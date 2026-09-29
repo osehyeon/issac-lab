@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GR00T N1.5 PickOrange</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f5f6f4;
+    --panel: #ffffff;
+    --fg: #1d2622;
+    --muted: #5f6b66;
+    --line: #c9d0cc;
+    --accent: #b5561c;
+    --tuned: #2f6b55;
+    --font-sans: "IBM Plex Sans", "IBM Plex Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.6;
+    padding-inline: 20px;
+    padding-block: 28px 48px;
+  }
+  main { max-width: 1400px; margin: 0 auto; display: grid; gap: 28px; }
+  header { display: grid; gap: 6px; }
+  h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
+  h2 { margin: 0 0 10px; font-size: 16px; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13.5px; max-width: 72ch; margin: 0; }
+  .meta code, td code { font-family: var(--font-mono); font-size: 0.92em; }
+  figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+  .scroll { overflow-x: auto; }
+  svg { display: block; width: 100%; min-width: 1300px; height: auto; color: var(--fg); font-family: var(--font-sans); }
+  svg .mono { font-family: var(--font-mono); }
+  figcaption { color: var(--muted); font-size: 13px; margin-top: 10px; max-width: 90ch; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 500; color: var(--muted); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; }
+  td.num { text-align: right; font-family: var(--font-mono); }
+  tr.sum td { font-weight: 600; border-bottom: none; }
+  .tag { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 3px; border: 1px solid currentColor; }
+  .tag.tuned { color: var(--tuned); }
+  .tag.frozen { color: var(--muted); border-style: dashed; }
+  .tag.unused { color: var(--accent); }
+  section.table { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+</style>
+</head><body>
+
+<main>
+  <header>
+    <h1>GR00T N1.5 PickOrange 모델 구조</h1>
+    <p class="meta">공식 가중치 <code>LightwheelAI/leisaac-pick-orange-v0</code>를 Isaac-GR00T <code>4af2b62</code>, 데이터 설정 <code>so100_dualcam</code>으로 불러와 실제 입력 한 개를 통과시키며 측정한 크기입니다. 배치 1, 연산 dtype bfloat16. 측정일 2026-09-28.</p>
+  </header>
+
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1660 958" role="img" aria-label="GR00T N1.5 PickOrange data flow with measured tensor shapes: two 224x224 camera images and the instruction pass once through SigLIP2 and the first 12 Qwen3 layers into (1, 557, 2048) VL tokens, which serve as cross-attention keys and values for a 16-block DiT that refines a (1, 16, 32) noisy action over 4 Euler steps into arm (16, 5) and gripper (16, 1) actions">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker><marker id="ahA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker></defs>
+<text x="20" y="36" font-size="12" fill="var(--muted)" font-weight="500" letter-spacing="0.06em">INPUTS</text>
+<text x="280" y="36" font-size="12" fill="var(--muted)" font-weight="500" letter-spacing="0.06em">PREPROCESSING</text>
+<text x="590" y="36" font-size="12" fill="var(--muted)" font-weight="500" letter-spacing="0.06em">EAGLE 2.5 VLM BACKBONE · 1.66B</text>
+<line x1="20" y1="520" x2="1640" y2="520" stroke="var(--line)"/>
+<text x="590" y="544" font-size="12" fill="var(--muted)" font-weight="500" letter-spacing="0.06em">FLOW-MATCHING ACTION HEAD · 1.07B · runs 4× per call</text>
+<rect x="20" y="60" width="210" height="64" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="32" y="78" font-size="13" font-weight="600">Front camera</text>
+<text x="32" y="98" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">video.front</text>
+<text x="32" y="113" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">(1, 480, 640, 3) uint8</text>
+<rect x="20" y="136" width="210" height="64" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="32" y="154" font-size="13" font-weight="600">Wrist camera</text>
+<text x="32" y="174" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">video.wrist</text>
+<text x="32" y="189" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">(1, 480, 640, 3) uint8</text>
+<rect x="20" y="212" width="210" height="64" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="32" y="230" font-size="13" font-weight="600">Instruction</text>
+<text x="32" y="250" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">&quot;Pick up the orange</text>
+<text x="32" y="265" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">and place it on the plate&quot;</text>
+<rect x="280" y="60" width="250" height="94" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="292" y="78" font-size="13" font-weight="600">Image transform</text>
+<text x="292" y="98" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">crop 0.95, resize 224×224</text>
+<text x="292" y="113" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">normalize, stack 2 cameras</text>
+<text x="292" y="128" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">pixel_values</text>
+<text x="292" y="143" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">(2, 3, 224, 224)</text>
+<rect x="280" y="190" width="250" height="109" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="292" y="208" font-size="13" font-weight="600">Chat template + tokenize</text>
+<text x="292" y="228" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">text + 2 &lt;image&gt; markers</text>
+<text x="292" y="243" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">each &lt;image&gt; → 256 slots</text>
+<text x="292" y="258" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">input_ids (1, 557) int64</text>
+<text x="292" y="273" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  = 512 image slots + 45 text</text>
+<text x="292" y="288" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">attention_mask (1, 557)</text>
+<rect x="590" y="60" width="300" height="140" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="602" y="78" font-size="13" font-weight="600">SigLIP2 vision · ×27 layers</text>
+<text x="602" y="98" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">patch conv 14×14 → (2, 1152, 16, 16)</text>
+<text x="602" y="113" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">flatten + pos → (2, 256, 1152)</text>
+<text x="602" y="128" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">attn 16 heads × 72:</text>
+<text x="602" y="143" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  q, k, v (2, 256, 1152)</text>
+<text x="602" y="158" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">MLP (2, 256, 4304) → (2, 256, 1152)</text>
+<text x="602" y="173" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">post-LN → (2, 256, 1152)</text>
+<text x="880" y="191" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">427.7M</text>
+<rect x="590" y="212" width="300" height="80" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="602" y="230" font-size="13" font-weight="600">mlp1 Linear 1152→2048</text>
+<text x="602" y="250" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">(2, 256, 1152) → (2, 256, 2048)</text>
+<text x="602" y="265" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">scattered into 512 image slots</text>
+<text x="880" y="283" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">2.4M</text>
+<rect x="960" y="60" width="320" height="185" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4"/>
+<text x="972" y="78" font-size="13" font-weight="600">Qwen3-1.7B · first 12 of 28 layers</text>
+<text x="972" y="98" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">embed (1, 557) → (1, 557, 2048)</text>
+<text x="972" y="113" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">attn GQA 16 q / 8 kv heads × 128:</text>
+<text x="972" y="128" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  q (1, 557, 2048)</text>
+<text x="972" y="143" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  k, v (1, 557, 1024)</text>
+<text x="972" y="158" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  o (1, 557, 2048)</text>
+<text x="972" y="173" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">MLP gate/up (1, 557, 6144)</text>
+<text x="972" y="188" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">    down → (1, 557, 2048)</text>
+<text x="972" y="203" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">out: layer 12 hidden (1, 557, 2048)</text>
+<text x="972" y="218" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">lm_head 310.6M: loaded, never used</text>
+<text x="1270" y="236" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">604M layers + 311M embed</text>
+<rect x="960" y="285" width="300" height="125" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="972" y="303" font-size="13" font-weight="600">VL refinement · ×4 layers</text>
+<text x="972" y="323" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">LayerNorm (1, 557, 2048)</text>
+<text x="972" y="338" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">self-attn 32 heads × 64:</text>
+<text x="972" y="353" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  q, k, v (1, 557, 2048)</text>
+<text x="972" y="368" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">FF (1, 557, 8192) → (1, 557, 2048)</text>
+<text x="972" y="383" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">out: VL tokens (1, 557, 2048)</text>
+<text x="1250" y="401" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">201.4M</text>
+<rect x="20" y="560" width="210" height="64" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="32" y="578" font-size="13" font-weight="600">Joint state</text>
+<text x="32" y="598" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">state.single_arm (1, 5)</text>
+<text x="32" y="613" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">state.gripper (1, 1)</text>
+<rect x="280" y="560" width="250" height="64" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="292" y="578" font-size="13" font-weight="600">Min-max norm + pad to 64</text>
+<text x="292" y="598" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">state (1, 1, 64)</text>
+<text x="292" y="613" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">state_mask (1, 1, 64) bool</text>
+<rect x="280" y="684" width="250" height="64" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="292" y="702" font-size="13" font-weight="600">Flow timestep</text>
+<text x="292" y="722" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">τ ∈ {0, ¼, ½, ¾}</text>
+<text x="292" y="737" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">t (1,) int64, bucketed ×1000</text>
+<rect x="590" y="560" width="300" height="80" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="602" y="578" font-size="13" font-weight="600">State encoder MLP</text>
+<text x="602" y="598" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">(1, 1, 64) → (1, 1, 1024)</text>
+<text x="602" y="613" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  → ReLU → (1, 1, 1536)</text>
+<text x="880" y="631" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">52.5M</text>
+<rect x="590" y="652" width="300" height="80" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="602" y="670" font-size="13" font-weight="600">Future tokens (learned)</text>
+<text x="602" y="690" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">weight (32, 1536)</text>
+<text x="602" y="705" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">→ expand (1, 32, 1536)</text>
+<text x="880" y="723" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">0.05M</text>
+<rect x="590" y="744" width="300" height="125" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="602" y="762" font-size="13" font-weight="600">Action encoder</text>
+<text x="602" y="782" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">x_τ (1, 16, 32) → W1 (1, 16, 1536)</text>
+<text x="602" y="797" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">sin(τ) (1, 16, 1536), concat</text>
+<text x="602" y="812" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  → (1, 16, 3072) → W2 → swish</text>
+<text x="602" y="827" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  → W3 (1, 16, 1536)</text>
+<text x="602" y="842" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">+ pos. embed (16, 1536)</text>
+<text x="880" y="860" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">228.2M</text>
+<rect x="960" y="560" width="320" height="215" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="972" y="578" font-size="13" font-weight="600">DiT · ×16 blocks</text>
+<text x="972" y="598" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">in: concat (1, 49, 1536)</text>
+<text x="972" y="613" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  = 1 state + 32 future + 16 action</text>
+<text x="972" y="628" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">t → timestep enc (1, 1536)</text>
+<text x="972" y="643" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">AdaLN per block: (1, 1536) → (1, 3072)</text>
+<text x="972" y="658" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">blocks 0, 2, … cross-attn 32 × 48:</text>
+<text x="972" y="673" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  q (1, 49, 1536)</text>
+<text x="972" y="688" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  k, v (1, 557, 2048) → (1, 557, 1536)</text>
+<text x="972" y="703" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">blocks 1, 3, … self-attn:</text>
+<text x="972" y="718" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  q, k, v (1, 49, 1536)</text>
+<text x="972" y="733" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">FF (1, 49, 6144) → (1, 49, 1536)</text>
+<text x="972" y="748" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">out: norm + proj (1, 49, 1024)</text>
+<text x="1270" y="766" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">550.4M</text>
+<rect x="1350" y="560" width="280" height="95" rx="4" fill="var(--panel)" stroke="var(--tuned)" stroke-width="1.6"/>
+<text x="1362" y="578" font-size="13" font-weight="600">Action decoder</text>
+<text x="1362" y="598" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">(1, 49, 1024) → (1, 49, 1024)</text>
+<text x="1362" y="613" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">  → ReLU → (1, 49, 32)</text>
+<text x="1362" y="628" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">keep last 16 → v (1, 16, 32)</text>
+<text x="1620" y="646" class="mono" font-size="11" text-anchor="end" fill="var(--fg)">34.6M</text>
+<rect x="1350" y="695" width="280" height="64" rx="4" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.6"/>
+<text x="1362" y="713" font-size="13" font-weight="600" fill="var(--accent)">Euler step</text>
+<text x="1362" y="733" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">x_τ+¼ = x_τ + ¼ · v</text>
+<text x="1362" y="748" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">x (1, 16, 32)</text>
+<rect x="1350" y="819" width="280" height="79" rx="4" fill="var(--panel)" stroke="currentColor" stroke-width="1.2"/>
+<text x="1362" y="837" font-size="13" font-weight="600">Action chunk (float32)</text>
+<text x="1362" y="857" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">slice 6 of 32 dims, denormalize</text>
+<text x="1362" y="872" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">action.single_arm (16, 5)</text>
+<text x="1362" y="887" class="mono" font-size="11" fill="var(--muted)" xml:space="preserve">action.gripper (16, 1)</text>
+<polyline points="230.0,92.0 255.0,92.0 255.0,92.9 278.0,92.9" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="230.0,168.0 255.0,168.0 255.0,121.1 278.0,121.1" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="230.0,244.0 278.0,244.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="530.0,107.0 560.0,107.0 560.0,130.0 588.0,130.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="405.0,154.0 405.0,188.0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+<text x="413.0" y="176.0" class="mono" font-size="11" text-anchor="start" fill="var(--muted)">2 images</text>
+<polyline points="740.0,200.0 740.0,210.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="890.0,252.0 925.0,252.0 925.0,174.7 958.0,174.7" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="530.0,244.5 560.0,244.5 560.0,310.0 925.0,310.0 925.0,208.0 958.0,208.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="1120.0,245.0 1120.0,283.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<text x="1128.0" y="269.0" class="mono" font-size="11" text-anchor="start" fill="var(--muted)">(1, 557, 2048)</text>
+<polyline points="1110.0,410.0 1110.0,558.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<text x="1118.0" y="489.0" class="mono" font-size="11" text-anchor="start" fill="var(--muted)">keys / values (1, 557, 2048)</text>
+<polyline points="230.0,592.0 278.0,592.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="530.0,592.0 560.0,592.0 560.0,600.0 588.0,600.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="530.0,716.0 560.0,716.0 560.0,806.5 588.0,806.5" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="890.0,600.0 925.0,600.0 925.0,594.0 958.0,594.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="890.0,692.0 925.0,692.0 925.0,609.0 958.0,609.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="890.0,806.5 925.0,806.5 925.0,624.0 958.0,624.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="1280.0,667.5 1315.0,667.5 1315.0,593.2 1348.0,593.2" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<polyline points="1490.0,655.0 1490.0,693.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<text x="1498.0" y="679.0" class="mono" font-size="11" text-anchor="start" fill="var(--muted)">v (1, 16, 32)</text>
+<polyline points="1490.0,759.0 1490.0,817.0" fill="none" stroke="currentColor" stroke-width="1.3" marker-end="url(#ah)"/>
+<text x="1498.0" y="793.0" class="mono" font-size="11" text-anchor="start" fill="var(--muted)">after step 4</text>
+<polyline points="1350.0,727.0 1315.0,727.0 1315.0,903.0 740.0,903.0 740.0,871.0" fill="none" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#ahA)"/>
+<text x="1027.5" y="919.0" class="mono" font-size="11" text-anchor="middle" fill="var(--accent)">repeat 4× · first x_0 ~ N(0, I) (1, 16, 32)</text>
+<rect x="20" y="914" width="26" height="14" rx="2" fill="none" stroke="var(--tuned)" stroke-width="1.6"/><text x="54" y="925" font-size="11.5" fill="var(--muted)">fine-tuned weights</text>
+<rect x="20" y="936" width="26" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="5 4"/><text x="54" y="947" font-size="11.5" fill="var(--muted)">frozen base weights</text>
+</svg>
+
+
+
+    </div>
+    <figcaption>카메라 두 장과 지시문은 VLM을 한 번만 통과해 (1, 557, 2048) 특징이 되고, 행동 헤드는 이 특징을 cross-attention의 키와 값으로 쓰면서 잡음에서 시작한 (1, 16, 32) 행동을 4번 다듬습니다. 한 번 호출에 VLM 1회, DiT 4회가 돌고, 로봇은 결과 16스텝을 실행합니다.</figcaption>
+  </figure>
+
+  <section class="table">
+    <h2>가중치 그룹별 크기</h2>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>그룹</th><th>모듈</th><th>입력 → 출력</th><th style="text-align:right">파라미터</th><th>상태</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>비전</td><td>SigLIP2, 27층</td><td><code>(2, 3, 224, 224) → (2, 256, 1152)</code></td><td class="num">427.7M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr><td>비전→언어 투영</td><td><code>mlp1</code> Linear</td><td><code>(2, 256, 1152) → (2, 256, 2048)</code></td><td class="num">2.4M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr><td>언어 모델</td><td>Qwen3-1.7B 앞 12층</td><td><code>(1, 557, 2048) → (1, 557, 2048)</code></td><td class="num">604.1M</td><td><span class="tag frozen">frozen</span></td></tr>
+          <tr><td></td><td>토큰 임베딩</td><td><code>(1, 557) → (1, 557, 2048)</code>, 어휘 151,680</td><td class="num">310.6M</td><td><span class="tag frozen">frozen</span></td></tr>
+          <tr><td></td><td><code>lm_head</code></td><td>추론에 쓰이지 않음</td><td class="num">310.6M</td><td><span class="tag unused">unused</span></td></tr>
+          <tr><td>VL 정리</td><td>LayerNorm + self-attn 4층</td><td><code>(1, 557, 2048) → (1, 557, 2048)</code></td><td class="num">201.4M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr><td>상태 인코더</td><td>embodiment별 MLP</td><td><code>(1, 1, 64) → (1, 1, 1536)</code></td><td class="num">52.5M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr><td>행동 인코더</td><td>W1·W2·W3 + 사인 위치 부호</td><td><code>(1, 16, 32) + (1,) → (1, 16, 1536)</code></td><td class="num">228.2M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr><td>DiT</td><td>16블록, cross/self 교대</td><td><code>(1, 49, 1536) → (1, 49, 1024)</code></td><td class="num">550.4M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr><td>행동 디코더</td><td>embodiment별 MLP</td><td><code>(1, 49, 1024) → (1, 49, 32)</code>, 뒤 16개 사용 → <code>(1, 16, 32)</code></td><td class="num">34.6M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr><td>기타</td><td>future 토큰, 위치 임베딩</td><td><code>(32, 1536)</code>, <code>(16, 1536)</code></td><td class="num">1.7M</td><td><span class="tag tuned">fine-tuned</span></td></tr>
+          <tr class="sum"><td>합계</td><td></td><td></td><td class="num">2,724.2M</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="meta" style="margin-top:10px">상태 인코더, 행동 인코더, 디코더는 embodiment 슬롯 32개분의 가중치를 모두 들고 있고, 이 체크포인트는 그중 <code>new_embodiment</code> 한 슬롯만 씁니다. fine-tuned / frozen 구분은 학습 설정(<code>tune_visual=True</code>, <code>tune_llm=False</code>)을 따릅니다.</p>
+  </section>
+</main>
+</body></html>
